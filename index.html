@@ -374,6 +374,7 @@
     .nav-button:focus-visible,
     .text-button:focus-visible,
     .aux-button:focus-visible,
+    .inline-detail-button:focus-visible,
     .history-clear-button:focus-visible {
       outline: 3px solid rgba(15, 118, 110, 0.28);
       outline-offset: 2px;
@@ -705,6 +706,27 @@
 
     .interpretation-copy p {
       margin: 0;
+    }
+
+    .inline-detail-button {
+      justify-self: start;
+      min-height: 44px;
+      margin-top: -2px;
+      padding: 0;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #98a2b3;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: color 130ms ease, background 130ms ease, transform 130ms ease;
+    }
+
+    .inline-detail-button:active {
+      color: var(--primary-strong);
+      transform: scale(0.985);
     }
 
     .keyword-row {
@@ -2145,6 +2167,17 @@
           paragraphEl.textContent = paragraph;
           copy.append(paragraphEl);
         });
+
+        if (!detailed) {
+          const detailButton = document.createElement("button");
+          detailButton.className = "inline-detail-button";
+          detailButton.type = "button";
+          detailButton.textContent = "자세히 보기";
+          detailButton.addEventListener("click", () => {
+            navigateToScreen("interpretation");
+          });
+          copy.append(detailButton);
+        }
 
         if (detailed) {
           const keywordRow = document.createElement("div");
