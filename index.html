@@ -1472,7 +1472,7 @@
 
     function saveCompletedRecord() {
       if (!answersAreComplete(state.answers)) {
-        return;
+        return null;
       }
 
       const answers = cloneAnswers(state.answers);
@@ -1485,6 +1485,7 @@
       const records = loadHistory();
       records.unshift(record);
       saveHistory(records);
+      return record;
     }
 
     function loadState() {
@@ -1508,12 +1509,48 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
+    function getRouteFromHash() {
+      const hash = window.location.hash.replace(/^#/, "");
+      if (hash === "interpretation") {
+        return { screen: "interpretation" };
+      }
+
+      if (hash === "result") {
+        return { screen: "result" };
+      }
+
+      if (hash.startsWith("result/")) {
+        return {
+          screen: "result",
+          recordId: decodeURIComponent(hash.slice("result/".length))
+        };
+      }
+
+      return { screen: null };
+    }
+
+    function setRouteForScreen(screen, recordId = "") {
+      let hash = "";
+      if (screen === "interpretation") {
+        hash = "#interpretation";
+      } else if (screen === "result") {
+        hash = recordId ? `#result/${encodeURIComponent(recordId)}` : "#result";
+      }
+
+      const nextUrl = `${window.location.pathname}${window.location.search}${hash}`;
+      const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      if (nextUrl !== currentUrl) {
+        history.pushState("", document.title, nextUrl);
+      }
+    }
+
     function resetState(screen = "intro") {
       state = {
         screen,
         currentQuestion: 0,
         answers: QUESTIONS.map(() => [])
       };
+      setRouteForScreen(screen);
       saveState();
       render();
     }
@@ -1621,15 +1658,10 @@
       }));
     }
 
-    function openHistoryRecord(recordId) {
+    function applyHistoryRecord(recordId) {
       const record = loadHistory().find((item) => item.id === recordId);
       if (!record) {
-        renderHistory();
-        return;
-      }
-
-      if (window.location.hash) {
-        history.pushState("", document.title, window.location.pathname + window.location.search);
+        return false;
       }
 
       state = {
@@ -1637,6 +1669,16 @@
         currentQuestion: QUESTIONS.length - 1,
         answers: cloneAnswers(record.answers)
       };
+      return true;
+    }
+
+    function openHistoryRecord(recordId) {
+      if (!applyHistoryRecord(recordId)) {
+        renderHistory();
+        return;
+      }
+
+      setRouteForScreen("result", recordId);
       saveState();
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1935,6 +1977,7 @@
       const incompleteIndex = state.answers.findIndex((answer) => answer.length !== 4);
       if (incompleteIndex >= 0) {
         state.currentQuestion = incompleteIndex;
+        setRouteForScreen("question");
         showScreen("question");
         renderQuestion();
         renderProgress();
@@ -1964,12 +2007,7 @@
     }
 
     function navigateToScreen(screen) {
-      if (screen === "interpretation") {
-        window.location.hash = "interpretation";
-      } else if (window.location.hash) {
-        history.pushState("", document.title, window.location.pathname + window.location.search);
-      }
-
+      setRouteForScreen(screen);
       state.screen = screen;
       saveState();
       render();
@@ -1977,14 +2015,34 @@
     }
 
     function syncScreenWithHash() {
-      if (window.location.hash === "#interpretation") {
+      const route = getRouteFromHash();
+
+      if (route.screen === "interpretation") {
         state.screen = "interpretation";
         saveState();
         render();
         return;
       }
 
-      if (state.screen === "interpretation") {
+      if (route.screen === "result") {
+        if (route.recordId) {
+          if (!applyHistoryRecord(route.recordId)) {
+            state.screen = "intro";
+            setRouteForScreen("intro");
+          }
+        } else if (answersAreComplete(state.answers)) {
+          state.screen = "result";
+        } else {
+          state.screen = "intro";
+          setRouteForScreen("intro");
+        }
+
+        saveState();
+        render();
+        return;
+      }
+
+      if (state.screen === "interpretation" || state.screen === "result") {
         state.screen = "intro";
         saveState();
         render();
@@ -2042,8 +2100,9 @@
       }
 
       if (state.currentQuestion === QUESTIONS.length - 1) {
-        saveCompletedRecord();
+        const record = saveCompletedRecord();
         state.screen = "result";
+        setRouteForScreen("result", record?.id);
       } else {
         state.currentQuestion += 1;
       }
@@ -2066,6 +2125,7 @@
     backToQuestionsButton.addEventListener("click", () => {
       state.screen = "question";
       state.currentQuestion = 0;
+      setRouteForScreen("question");
       saveState();
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2084,11 +2144,25 @@
     });
 
     window.addEventListener("hashchange", syncScreenWithHash);
+    window.addEventListener("popstate", syncScreenWithHash);
 
     loadState();
-    if (window.location.hash === "#interpretation") {
+    const initialRoute = getRouteFromHash();
+    if (initialRoute.screen === "interpretation") {
       state.screen = "interpretation";
-    } else if (state.screen === "interpretation") {
+    } else if (initialRoute.screen === "result") {
+      if (initialRoute.recordId) {
+        if (!applyHistoryRecord(initialRoute.recordId)) {
+          state.screen = "intro";
+          setRouteForScreen("intro");
+        }
+      } else if (answersAreComplete(state.answers)) {
+        state.screen = "result";
+      } else {
+        state.screen = "intro";
+        setRouteForScreen("intro");
+      }
+    } else if (state.screen === "interpretation" || state.screen === "result") {
       state.screen = "intro";
     }
     render();
