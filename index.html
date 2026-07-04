@@ -654,7 +654,7 @@
     .interpretation-item summary {
       min-height: 56px;
       display: grid;
-      grid-template-columns: auto 1fr;
+      grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 10px;
       padding: 12px 14px;
@@ -662,10 +662,15 @@
       touch-action: manipulation;
       font-weight: 850;
       color: #26313d;
+      list-style: none;
     }
 
     .interpretation-item summary::marker {
-      color: var(--system-color, var(--primary));
+      content: "";
+    }
+
+    .interpretation-item summary::-webkit-details-marker {
+      display: none;
     }
 
     .interpretation-item summary:focus-visible {
@@ -678,6 +683,27 @@
       height: 12px;
       border-radius: 50%;
       background: var(--system-color, var(--primary));
+    }
+
+    .interpretation-chevron {
+      width: 24px;
+      height: 24px;
+      display: inline-grid;
+      place-items: center;
+      color: #98a2b3;
+      transform: rotate(0deg);
+      transition: color 160ms ease, transform 160ms ease;
+    }
+
+    .interpretation-chevron svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .interpretation-item[open] .interpretation-chevron {
+      color: var(--system-color, var(--primary));
+      transform: rotate(90deg);
     }
 
     .interpretation-title {
@@ -2137,7 +2163,7 @@
         const interpretation = INTERPRETATIONS[item.key];
         const details = document.createElement("details");
         details.className = "interpretation-item";
-        details.open = detailed ? index === 0 : showScores && item.score === maxScore;
+        details.open = !detailed && showScores && item.score === maxScore;
         details.style.setProperty("--system-color", item.color);
 
         const summary = document.createElement("summary");
@@ -2157,8 +2183,17 @@
         subtitle.className = "interpretation-subtitle";
         subtitle.textContent = interpretation.subtitle;
 
+        const chevron = document.createElement("span");
+        chevron.className = "interpretation-chevron";
+        chevron.setAttribute("aria-hidden", "true");
+        chevron.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"></path>
+          </svg>
+        `;
+
         title.append(name, subtitle);
-        summary.append(dot, title);
+        summary.append(dot, title, chevron);
 
         const copy = document.createElement("div");
         copy.className = "interpretation-copy";
