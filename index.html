@@ -850,7 +850,7 @@
           <div class="winner" id="winner"></div>
           <svg class="result-chart" id="radarChart" viewBox="0 0 220 220" role="img" aria-labelledby="chartTitle chartDesc">
             <title id="chartTitle">표상 체계 점수 차트</title>
-            <desc id="chartDesc">Visual, Auditory, Kinesthetic, Auditory Digital 점수를 비교한 레이더 차트</desc>
+            <desc id="chartDesc">Visual, Auditory, Kinesthetic, Digital 점수를 비교한 레이더 차트</desc>
           </svg>
         </div>
         <div class="score-list" id="scoreList"></div>
@@ -913,7 +913,7 @@
         description: "감각형: 몸의 편안함, 촉감, 직관적인 느낌, 정서적 반응을 중심으로 받아들이는 경향이 강합니다."
       },
       D: {
-        name: "Auditory Digital",
+        name: "Digital",
         shortName: "D",
         color: "#7c3aed",
         description: "분석형: 논리, 의미, 근거, 체계적 정리를 중심으로 이해하고 판단하는 경향이 강합니다."
@@ -922,7 +922,7 @@
 
     const INTERPRETATIONS = {
       V: {
-        subtitle: "Visual - see (시각기능)",
+        subtitle: "시각기능 - 보기 (Visual)",
         keywords: ["이미지", "전체 그림", "색상과 배치", "문서와 도표"],
         paragraphs: [
           "시각기능의 사람들은 눈을 위쪽으로 뜬 채 머리와 몸을 세우는 경향이 있다. 흉식호흡의 경향이 있으며 깔끔하고 정리정돈을 잘한다.",
@@ -968,7 +968,7 @@
         ]
       },
       A: {
-        subtitle: "Auditory - hear (청각기능)",
+        subtitle: "청각기능 - 듣기 (Auditory)",
         keywords: ["목소리", "톤", "대화", "음악과 리듬"],
         paragraphs: [
           "청각기능의 사람들은 눈을 옆으로 움직이는 경향이 있다. 중간 가슴 쪽에서 호흡을 하는 경향이 있다.",
@@ -1015,7 +1015,7 @@
         ]
       },
       K: {
-        subtitle: "Kinesthetic - feel (신체감각기능)",
+        subtitle: "신체감각기능 - 느끼기 (Kinesthetic)",
         keywords: ["느낌", "행동", "촉감", "몸의 감각"],
         paragraphs: [
           "신체감각기능의 사람들은 복식호흡을 하는 경향이 있다. 그래서 호흡을 할 때 배가 들어갔다 나왔다 하는 모습을 볼 수 있다.",
@@ -1061,7 +1061,7 @@
         ]
       },
       D: {
-        subtitle: "Auditory Digital - words (내부 언어적 기능)",
+        subtitle: "내부 언어적 기능 - 말과 단어 (Digital)",
         keywords: ["논리", "순서", "개념", "내적 언어"],
         paragraphs: [
           "내부 언어적 기능의 사람은 독백하는 버릇이 있다. 사리와 논리를 따지는 경향이 있다.",
@@ -1587,7 +1587,7 @@
 
       radarChart.innerHTML = `
         <title id="chartTitle">표상 체계 점수 차트</title>
-        <desc id="chartDesc">Visual, Auditory, Kinesthetic, Auditory Digital 점수를 비교한 레이더 차트</desc>
+        <desc id="chartDesc">Visual, Auditory, Kinesthetic, Digital 점수를 비교한 레이더 차트</desc>
         ${rings}
         ${axes}
         <polygon points="${pointsToString(scorePoints)}" fill="rgba(15, 118, 110, 0.20)" stroke="#0f766e" stroke-width="3" stroke-linejoin="round" />
