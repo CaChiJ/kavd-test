@@ -119,6 +119,7 @@
     }
 
     .intro,
+    .history-panel,
     .question-panel,
     .result-panel,
     .interpretation-panel {
@@ -130,6 +131,126 @@
 
     .intro {
       padding: 22px 18px;
+    }
+
+    .history-panel {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 14px;
+    }
+
+    .history-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .history-panel h3 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .history-panel p {
+      margin: 2px 0 0;
+      color: #475467;
+      font-size: 14px;
+    }
+
+    .history-clear-button {
+      min-height: 36px;
+      padding: 0 8px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: background 130ms ease, color 130ms ease, transform 130ms ease;
+    }
+
+    .history-clear-button:active {
+      transform: scale(0.985);
+      background: rgba(180, 35, 24, 0.08);
+      color: var(--danger);
+    }
+
+    .history-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .history-item {
+      width: 100%;
+      min-height: 60px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: left;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 130ms ease, border-color 130ms ease, background 130ms ease, box-shadow 130ms ease;
+    }
+
+    .history-item:active {
+      transform: scale(0.985);
+    }
+
+    .history-item:focus-visible {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18);
+    }
+
+    .history-main {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .history-result {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      color: var(--text);
+      font-weight: 850;
+      line-height: 1.35;
+    }
+
+    .history-type {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .history-score {
+      color: var(--primary-strong);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .history-date {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .history-open {
+      color: var(--primary-strong);
+      font-size: 13px;
+      font-weight: 850;
+      white-space: nowrap;
     }
 
     .eyebrow {
@@ -252,7 +373,8 @@
     .option:focus-visible,
     .nav-button:focus-visible,
     .text-button:focus-visible,
-    .aux-button:focus-visible {
+    .aux-button:focus-visible,
+    .history-clear-button:focus-visible {
       outline: 3px solid rgba(15, 118, 110, 0.28);
       outline-offset: 2px;
     }
@@ -312,7 +434,8 @@
       grid-template-columns: 1fr;
     }
 
-    .intro-secondary-actions {
+    .intro-secondary-actions,
+    .result-secondary-actions {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -765,6 +888,7 @@
       }
 
       .intro,
+      .history-panel,
       .question-panel,
       .result-panel,
       .interpretation-panel {
@@ -823,6 +947,17 @@
         </div>
       </section>
 
+      <section class="history-panel hidden" id="historyPanel" aria-labelledby="historyTitle">
+        <div class="history-head">
+          <div>
+            <h3 id="historyTitle">검사 기록</h3>
+            <p>완료한 결과를 다시 볼 수 있습니다.</p>
+          </div>
+          <button class="history-clear-button" type="button" id="clearHistoryButton">기록 삭제</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </section>
+
       <div class="intro-secondary-actions" id="introSecondaryActions">
         <button class="aux-button" type="button" id="interpretationButton">표상 체계 해석 보기</button>
         <button class="aux-button secondary" type="button" id="clearSavedButton">초기화</button>
@@ -869,6 +1004,9 @@
         <div class="actions">
           <button class="nav-button" type="button" id="backToQuestionsButton">답변 수정</button>
           <button class="nav-button primary" type="button" id="restartButton">다시 하기</button>
+        </div>
+        <div class="result-secondary-actions">
+          <button class="aux-button" type="button" id="resultHomeButton">처음으로</button>
         </div>
       </section>
 
@@ -922,7 +1060,7 @@
 
     const INTERPRETATIONS = {
       V: {
-        subtitle: "시각기능 - 보기 (Visual)",
+        subtitle: "시각형",
         keywords: ["이미지", "전체 그림", "색상과 배치", "문서와 도표"],
         paragraphs: [
           "시각기능의 사람들은 눈을 위쪽으로 뜬 채 머리와 몸을 세우는 경향이 있다. 흉식호흡의 경향이 있으며 깔끔하고 정리정돈을 잘한다.",
@@ -968,7 +1106,7 @@
         ]
       },
       A: {
-        subtitle: "청각기능 - 듣기 (Auditory)",
+        subtitle: "청각형",
         keywords: ["목소리", "톤", "대화", "음악과 리듬"],
         paragraphs: [
           "청각기능의 사람들은 눈을 옆으로 움직이는 경향이 있다. 중간 가슴 쪽에서 호흡을 하는 경향이 있다.",
@@ -1015,7 +1153,7 @@
         ]
       },
       K: {
-        subtitle: "신체감각기능 - 느끼기 (Kinesthetic)",
+        subtitle: "감각형",
         keywords: ["느낌", "행동", "촉감", "몸의 감각"],
         paragraphs: [
           "신체감각기능의 사람들은 복식호흡을 하는 경향이 있다. 그래서 호흡을 할 때 배가 들어갔다 나왔다 하는 모습을 볼 수 있다.",
@@ -1061,7 +1199,7 @@
         ]
       },
       D: {
-        subtitle: "내부 언어적 기능 - 말과 단어 (Digital)",
+        subtitle: "분석형",
         keywords: ["논리", "순서", "개념", "내적 언어"],
         paragraphs: [
           "내부 언어적 기능의 사람은 독백하는 버릇이 있다. 사리와 논리를 따지는 경향이 있다.",
@@ -1204,8 +1342,19 @@
     ];
 
     const STORAGE_KEY = "rep-system-test-state-v2";
+    const HISTORY_STORAGE_KEY = "rep-system-test-history-v1";
+    const MAX_HISTORY_COUNT = 12;
+    const HISTORY_DATE_FORMATTER = new Intl.DateTimeFormat("ko-KR", {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
     const introScreen = document.querySelector("#introScreen");
     const introSecondaryActions = document.querySelector("#introSecondaryActions");
+    const historyPanel = document.querySelector("#historyPanel");
+    const historyList = document.querySelector("#historyList");
     const questionScreen = document.querySelector("#questionScreen");
     const resultScreen = document.querySelector("#resultScreen");
     const interpretationScreen = document.querySelector("#interpretationScreen");
@@ -1218,11 +1367,13 @@
     const statusLine = document.querySelector("#statusLine");
     const startButton = document.querySelector("#startButton");
     const clearSavedButton = document.querySelector("#clearSavedButton");
+    const clearHistoryButton = document.querySelector("#clearHistoryButton");
     const interpretationButton = document.querySelector("#interpretationButton");
     const prevButton = document.querySelector("#prevButton");
     const nextButton = document.querySelector("#nextButton");
     const restartButton = document.querySelector("#restartButton");
     const backToQuestionsButton = document.querySelector("#backToQuestionsButton");
+    const resultHomeButton = document.querySelector("#resultHomeButton");
     const resultInterpretationButton = document.querySelector("#resultInterpretationButton");
     const interpretationBackButton = document.querySelector("#interpretationBackButton");
     const interpretationStartButton = document.querySelector("#interpretationStartButton");
@@ -1239,6 +1390,103 @@
       answers: QUESTIONS.map(() => [])
     };
 
+    function normalizeAnswers(answers) {
+      return QUESTIONS.map((question, questionIndex) => {
+        const source = Array.isArray(answers?.[questionIndex]) ? answers[questionIndex] : [];
+        const normalized = [];
+        source.forEach((optionIndex) => {
+          const isValid = Number.isInteger(optionIndex)
+            && optionIndex >= 0
+            && optionIndex < question.options.length
+            && !normalized.includes(optionIndex);
+          if (isValid) {
+            normalized.push(optionIndex);
+          }
+        });
+        return normalized;
+      });
+    }
+
+    function cloneAnswers(answers) {
+      return normalizeAnswers(answers).map((answer) => answer.slice());
+    }
+
+    function answersAreComplete(answers) {
+      if (!Array.isArray(answers) || answers.length !== QUESTIONS.length) {
+        return false;
+      }
+      return normalizeAnswers(answers).every((answer) => answer.length === 4);
+    }
+
+    function calculateScoresForAnswers(answers) {
+      const scores = { V: 0, A: 0, K: 0, D: 0 };
+      normalizeAnswers(answers).forEach((answer, questionIndex) => {
+        answer.forEach((optionIndex, rankIndex) => {
+          const system = QUESTIONS[questionIndex].options[optionIndex].system;
+          scores[system] += SCORE_SEQUENCE[rankIndex];
+        });
+      });
+      return scores;
+    }
+
+    function normalizeHistoryRecord(record) {
+      if (!record || !Array.isArray(record.answers) || !answersAreComplete(record.answers)) {
+        return null;
+      }
+
+      const answers = cloneAnswers(record.answers);
+      const savedScores = record.scores || {};
+      const scores = ["V", "A", "K", "D"].every((key) => Number.isFinite(savedScores[key]))
+        ? { V: savedScores.V, A: savedScores.A, K: savedScores.K, D: savedScores.D }
+        : calculateScoresForAnswers(answers);
+      const parsedDate = Date.parse(record.completedAt);
+      const completedAt = Number.isFinite(parsedDate) ? record.completedAt : new Date().toISOString();
+
+      return {
+        id: typeof record.id === "string" ? record.id : `${completedAt}-${Math.random().toString(36).slice(2, 8)}`,
+        completedAt,
+        answers,
+        scores
+      };
+    }
+
+    function loadHistory() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY));
+        if (!Array.isArray(saved)) {
+          return [];
+        }
+        return saved
+          .map(normalizeHistoryRecord)
+          .filter(Boolean)
+          .slice(0, MAX_HISTORY_COUNT);
+      } catch {
+        localStorage.removeItem(HISTORY_STORAGE_KEY);
+        return [];
+      }
+    }
+
+    function saveHistory(records) {
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(records.slice(0, MAX_HISTORY_COUNT)));
+    }
+
+    function saveCompletedRecord() {
+      if (!answersAreComplete(state.answers)) {
+        return;
+      }
+
+      const answers = cloneAnswers(state.answers);
+      const record = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        completedAt: new Date().toISOString(),
+        answers,
+        scores: calculateScoresForAnswers(answers)
+      };
+      const records = loadHistory();
+      records.unshift(record);
+      saveHistory(records);
+    }
+
     function loadState() {
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -1249,7 +1497,7 @@
         state = {
           screen: saved.screen || "intro",
           currentQuestion: Number.isInteger(saved.currentQuestion) ? saved.currentQuestion : 0,
-          answers: saved.answers.map((answer) => Array.isArray(answer) ? answer.filter(Number.isInteger) : [])
+          answers: normalizeAnswers(saved.answers)
         };
       } catch {
         localStorage.removeItem(STORAGE_KEY);
@@ -1312,6 +1560,88 @@
       progressBar.style.width = `${Math.min(100, percent)}%`;
     }
 
+    function formatHistoryDate(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return "저장된 결과";
+      }
+      return HISTORY_DATE_FORMATTER.format(date);
+    }
+
+    function renderHistory() {
+      const records = loadHistory();
+      const shouldShow = state.screen === "intro" && records.length > 0;
+      historyPanel.classList.toggle("hidden", !shouldShow);
+
+      if (!shouldShow) {
+        historyList.replaceChildren();
+        return;
+      }
+
+      historyList.replaceChildren(...records.map((record) => {
+        const sorted = getSortedScores(record.scores);
+        const topScore = sorted[0].score;
+        const topNames = sorted
+          .filter((item) => item.score === topScore)
+          .map((item) => item.name)
+          .join(" · ");
+
+        const button = document.createElement("button");
+        button.className = "history-item";
+        button.type = "button";
+        button.setAttribute("aria-label", `${formatHistoryDate(record.completedAt)} 검사 결과 보기, ${topNames} ${topScore}점`);
+        button.addEventListener("click", () => openHistoryRecord(record.id));
+
+        const main = document.createElement("span");
+        main.className = "history-main";
+
+        const result = document.createElement("span");
+        result.className = "history-result";
+
+        const type = document.createElement("span");
+        type.className = "history-type";
+        type.textContent = topNames;
+
+        const score = document.createElement("span");
+        score.className = "history-score";
+        score.textContent = `${topScore}점`;
+
+        const date = document.createElement("span");
+        date.className = "history-date";
+        date.textContent = formatHistoryDate(record.completedAt);
+
+        const open = document.createElement("span");
+        open.className = "history-open";
+        open.textContent = "보기";
+
+        result.append(type, score);
+        main.append(result, date);
+        button.append(main, open);
+        return button;
+      }));
+    }
+
+    function openHistoryRecord(recordId) {
+      const record = loadHistory().find((item) => item.id === recordId);
+      if (!record) {
+        renderHistory();
+        return;
+      }
+
+      if (window.location.hash) {
+        history.pushState("", document.title, window.location.pathname + window.location.search);
+      }
+
+      state = {
+        screen: "result",
+        currentQuestion: QUESTIONS.length - 1,
+        answers: cloneAnswers(record.answers)
+      };
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
     function renderQuestion() {
       const question = QUESTIONS[state.currentQuestion];
       const answer = state.answers[state.currentQuestion];
@@ -1367,14 +1697,7 @@
     }
 
     function calculateScores() {
-      const scores = { V: 0, A: 0, K: 0, D: 0 };
-      state.answers.forEach((answer, questionIndex) => {
-        answer.forEach((optionIndex, rankIndex) => {
-          const system = QUESTIONS[questionIndex].options[optionIndex].system;
-          scores[system] += SCORE_SEQUENCE[rankIndex];
-        });
-      });
-      return scores;
+      return calculateScoresForAnswers(state.answers);
     }
 
     function getSortedScores(scores) {
@@ -1624,6 +1947,7 @@
     function render() {
       showScreen(state.screen);
       renderProgress();
+      renderHistory();
 
       if (state.screen === "question") {
         state.currentQuestion = Math.max(0, Math.min(QUESTIONS.length - 1, state.currentQuestion));
@@ -1668,6 +1992,10 @@
     }
 
     startButton.addEventListener("click", () => {
+      if (answersAreComplete(state.answers)) {
+        state.answers = QUESTIONS.map(() => []);
+        state.currentQuestion = 0;
+      }
       state.screen = "question";
       state.currentQuestion = Math.min(state.currentQuestion, QUESTIONS.length - 1);
       saveState();
@@ -1677,6 +2005,20 @@
 
     clearSavedButton.addEventListener("click", () => {
       resetState("intro");
+    });
+
+    clearHistoryButton.addEventListener("click", () => {
+      const records = loadHistory();
+      if (records.length === 0) {
+        return;
+      }
+
+      if (!window.confirm("검사 기록을 모두 삭제할까요?")) {
+        return;
+      }
+
+      localStorage.removeItem(HISTORY_STORAGE_KEY);
+      renderHistory();
     });
 
     interpretationButton.addEventListener("click", () => {
@@ -1700,6 +2042,7 @@
       }
 
       if (state.currentQuestion === QUESTIONS.length - 1) {
+        saveCompletedRecord();
         state.screen = "result";
       } else {
         state.currentQuestion += 1;
@@ -1712,6 +2055,11 @@
 
     restartButton.addEventListener("click", () => {
       resetState("question");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    resultHomeButton.addEventListener("click", () => {
+      resetState("intro");
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
