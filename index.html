@@ -624,6 +624,109 @@
       width: 100%;
     }
 
+    .answer-review-section {
+      display: grid;
+      gap: 12px;
+      margin: 18px 0;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .answer-review-section h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.32;
+      letter-spacing: 0;
+    }
+
+    .answer-review-section > p {
+      margin: 0;
+      color: #475467;
+      font-size: 15px;
+    }
+
+    .answer-review-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .answer-review-item {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .answer-review-question {
+      display: grid;
+      gap: 2px;
+    }
+
+    .answer-review-number {
+      color: var(--primary-strong);
+      font-size: 13px;
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .answer-review-title {
+      color: var(--text);
+      font-weight: 850;
+      line-height: 1.42;
+    }
+
+    .answer-choice-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .answer-choice {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--surface-strong);
+    }
+
+    .answer-score {
+      display: inline-grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .answer-text {
+      min-width: 0;
+      color: #344054;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .answer-system {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #26313d;
+      border: 1px solid #d8dee8;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
     .result-note {
       padding: 13px;
       border-radius: 8px;
@@ -758,6 +861,11 @@
           <button class="text-button interpretation-more-button" type="button" id="resultInterpretationButton">표상 체계 해석 자세히 보기</button>
         </section>
         <p class="result-note">이 검사는 자기 이해를 돕기 위한 참고용 도구입니다. 성격, 능력, 적성에 대한 진단으로 해석하지 마세요.</p>
+        <section class="answer-review-section" aria-labelledby="answerReviewTitle">
+          <h3 id="answerReviewTitle">내가 선택한 답변</h3>
+          <p>각 문항에서 내가 탭한 순서입니다. 4점이 가장 가까운 항목입니다.</p>
+          <div class="answer-review-list" id="answerReviewList"></div>
+        </section>
         <div class="actions">
           <button class="nav-button" type="button" id="backToQuestionsButton">답변 수정</button>
           <button class="nav-button primary" type="button" id="restartButton">다시 하기</button>
@@ -1122,6 +1230,7 @@
     const scoreList = document.querySelector("#scoreList");
     const interpretationList = document.querySelector("#interpretationList");
     const interpretationPageList = document.querySelector("#interpretationPageList");
+    const answerReviewList = document.querySelector("#answerReviewList");
     const radarChart = document.querySelector("#radarChart");
 
     let state = {
@@ -1307,7 +1416,58 @@
         detailed: false,
         target: interpretationList
       });
+      renderAnswerReview();
       renderRadar(scores);
+    }
+
+    function renderAnswerReview() {
+      answerReviewList.replaceChildren(...QUESTIONS.map((question, questionIndex) => {
+        const answer = state.answers[questionIndex];
+        const item = document.createElement("article");
+        item.className = "answer-review-item";
+
+        const questionEl = document.createElement("div");
+        questionEl.className = "answer-review-question";
+
+        const numberEl = document.createElement("div");
+        numberEl.className = "answer-review-number";
+        numberEl.textContent = `문항 ${questionIndex + 1}`;
+
+        const titleEl = document.createElement("div");
+        titleEl.className = "answer-review-title";
+        titleEl.textContent = question.title;
+
+        questionEl.append(numberEl, titleEl);
+
+        const choiceList = document.createElement("div");
+        choiceList.className = "answer-choice-list";
+        answer.forEach((optionIndex, rankIndex) => {
+          const option = question.options[optionIndex];
+          const score = SCORE_SEQUENCE[rankIndex];
+          const system = SYSTEMS[option.system];
+
+          const row = document.createElement("div");
+          row.className = "answer-choice";
+
+          const scoreEl = document.createElement("span");
+          scoreEl.className = "answer-score";
+          scoreEl.textContent = score;
+
+          const textEl = document.createElement("span");
+          textEl.className = "answer-text";
+          textEl.textContent = option.text;
+
+          const systemEl = document.createElement("span");
+          systemEl.className = "answer-system";
+          systemEl.textContent = system.shortName;
+
+          row.append(scoreEl, textEl, systemEl);
+          choiceList.append(row);
+        });
+
+        item.append(questionEl, choiceList);
+        return item;
+      }));
     }
 
     function renderInterpretationPage() {
