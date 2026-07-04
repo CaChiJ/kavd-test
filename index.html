@@ -843,8 +843,10 @@
       padding: 0 8px;
       border-radius: 999px;
       background: #ffffff;
-      color: #26313d;
+      background: color-mix(in srgb, var(--answer-system-color, var(--primary)) 12%, white);
+      color: var(--answer-system-color, var(--primary-strong));
       border: 1px solid #d8dee8;
+      border-color: color-mix(in srgb, var(--answer-system-color, var(--primary)) 42%, white);
       font-size: 12px;
       font-weight: 900;
       white-space: nowrap;
@@ -1824,6 +1826,8 @@
 
           const systemEl = document.createElement("span");
           systemEl.className = "answer-system";
+          systemEl.style.setProperty("--answer-system-color", system.color);
+          systemEl.title = system.name;
           systemEl.textContent = system.shortName;
 
           row.append(scoreEl, textEl, systemEl);
