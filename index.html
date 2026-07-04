@@ -120,7 +120,8 @@
 
     .intro,
     .question-panel,
-    .result-panel {
+    .result-panel,
+    .interpretation-panel {
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -144,7 +145,8 @@
     }
 
     .intro h2,
-    .result-panel h2 {
+    .result-panel h2,
+    .interpretation-panel h2 {
       margin: 14px 0 10px;
       font-size: 26px;
       line-height: 1.24;
@@ -152,7 +154,8 @@
     }
 
     .intro p,
-    .result-panel p {
+    .result-panel p,
+    .interpretation-panel p {
       margin: 0;
       color: #344054;
     }
@@ -300,6 +303,10 @@
       margin-top: 18px;
     }
 
+    .intro-actions {
+      grid-template-columns: 1fr;
+    }
+
     .nav-button,
     .text-button {
       min-height: 48px;
@@ -337,6 +344,16 @@
 
     .result-panel {
       padding: 20px 18px;
+    }
+
+    .interpretation-panel {
+      padding: 20px 18px;
+    }
+
+    .interpretation-lead {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
     }
 
     .result-hero {
@@ -558,12 +575,14 @@
 
       .intro,
       .question-panel,
-      .result-panel {
+      .result-panel,
+      .interpretation-panel {
         padding: 28px;
       }
 
       .intro h2,
-      .result-panel h2 {
+      .result-panel h2,
+      .interpretation-panel h2 {
         font-size: 32px;
       }
 
@@ -608,8 +627,9 @@
           <li><span class="rule-number">4</span><span>가장 크게 해당하는 경우</span></li>
           <li><span class="rule-number">1</span><span>가장 적게 해당하거나 관계없는 경우</span></li>
         </ul>
-        <div class="actions">
+        <div class="actions intro-actions">
           <button class="nav-button" type="button" id="clearSavedButton">초기화</button>
+          <button class="nav-button" type="button" id="interpretationButton">표상 체계 해석 보기</button>
           <button class="nav-button primary" type="button" id="startButton">시작하기</button>
         </div>
       </section>
@@ -649,6 +669,20 @@
         <div class="actions">
           <button class="nav-button" type="button" id="backToQuestionsButton">답변 수정</button>
           <button class="nav-button primary" type="button" id="restartButton">다시 하기</button>
+        </div>
+      </section>
+
+      <section class="interpretation-panel hidden" id="interpretationScreen">
+        <div class="interpretation-lead">
+          <span class="eyebrow">Rep System Guide</span>
+          <h2>표상 체계 해석</h2>
+          <p>시각, 청각, 신체감각, 내부 언어적 기능의 일반적 특징을 정리했습니다.</p>
+        </div>
+        <div class="interpretation-list" id="interpretationPageList"></div>
+        <p class="result-note">이 해석은 자기 이해를 돕기 위한 참고용 설명입니다. 개인의 성격이나 능력을 단정하는 기준으로 사용하지 마세요.</p>
+        <div class="actions">
+          <button class="nav-button" type="button" id="interpretationBackButton">처음으로</button>
+          <button class="nav-button primary" type="button" id="interpretationStartButton">검사 시작</button>
         </div>
       </section>
     </main>
@@ -821,6 +855,7 @@
     const introScreen = document.querySelector("#introScreen");
     const questionScreen = document.querySelector("#questionScreen");
     const resultScreen = document.querySelector("#resultScreen");
+    const interpretationScreen = document.querySelector("#interpretationScreen");
     const stepCount = document.querySelector("#stepCount");
     const progressBar = document.querySelector("#progressBar");
     const questionLabel = document.querySelector("#questionLabel");
@@ -830,13 +865,17 @@
     const statusLine = document.querySelector("#statusLine");
     const startButton = document.querySelector("#startButton");
     const clearSavedButton = document.querySelector("#clearSavedButton");
+    const interpretationButton = document.querySelector("#interpretationButton");
     const prevButton = document.querySelector("#prevButton");
     const nextButton = document.querySelector("#nextButton");
     const restartButton = document.querySelector("#restartButton");
     const backToQuestionsButton = document.querySelector("#backToQuestionsButton");
+    const interpretationBackButton = document.querySelector("#interpretationBackButton");
+    const interpretationStartButton = document.querySelector("#interpretationStartButton");
     const winnerEl = document.querySelector("#winner");
     const scoreList = document.querySelector("#scoreList");
     const interpretationList = document.querySelector("#interpretationList");
+    const interpretationPageList = document.querySelector("#interpretationPageList");
     const radarChart = document.querySelector("#radarChart");
 
     let state = {
@@ -880,6 +919,7 @@
       introScreen.classList.toggle("hidden", screen !== "intro");
       questionScreen.classList.toggle("hidden", screen !== "question");
       resultScreen.classList.toggle("hidden", screen !== "result");
+      interpretationScreen.classList.toggle("hidden", screen !== "interpretation");
       state.screen = screen;
       saveState();
     }
@@ -898,6 +938,12 @@
       if (state.screen === "result") {
         stepCount.textContent = "완료";
         progressBar.style.width = "100%";
+        return;
+      }
+
+      if (state.screen === "interpretation") {
+        stepCount.textContent = "해석";
+        progressBar.style.width = "0%";
         return;
       }
 
@@ -1007,16 +1053,32 @@
         return row;
       }));
 
-      renderInterpretations(sorted, maxScore);
+      renderInterpretations(sorted, {
+        maxScore,
+        showScores: true,
+        target: interpretationList
+      });
       renderRadar(scores);
     }
 
-    function renderInterpretations(sortedScores, maxScore) {
-      interpretationList.replaceChildren(...sortedScores.map((item) => {
+    function renderInterpretationPage() {
+      const items = ["V", "A", "K", "D"].map((key) => ({ key, ...SYSTEMS[key] }));
+      renderInterpretations(items, {
+        showScores: false,
+        target: interpretationPageList
+      });
+    }
+
+    function renderInterpretations(items, options = {}) {
+      const target = options.target || interpretationList;
+      const maxScore = options.maxScore;
+      const showScores = options.showScores !== false;
+
+      target.replaceChildren(...items.map((item) => {
         const interpretation = INTERPRETATIONS[item.key];
         const details = document.createElement("details");
         details.className = "interpretation-item";
-        details.open = item.score === maxScore;
+        details.open = showScores && item.score === maxScore;
         details.style.setProperty("--system-color", item.color);
 
         const summary = document.createElement("summary");
@@ -1030,7 +1092,7 @@
 
         const name = document.createElement("span");
         name.className = "interpretation-name";
-        name.textContent = `${item.name} · ${item.score}점`;
+        name.textContent = showScores ? `${item.name} · ${item.score}점` : item.name;
 
         const subtitle = document.createElement("span");
         subtitle.className = "interpretation-subtitle";
@@ -1130,6 +1192,38 @@
       if (state.screen === "result") {
         renderResult();
       }
+
+      if (state.screen === "interpretation") {
+        renderInterpretationPage();
+      }
+    }
+
+    function navigateToScreen(screen) {
+      if (screen === "interpretation") {
+        window.location.hash = "interpretation";
+      } else if (window.location.hash) {
+        history.pushState("", document.title, window.location.pathname + window.location.search);
+      }
+
+      state.screen = screen;
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function syncScreenWithHash() {
+      if (window.location.hash === "#interpretation") {
+        state.screen = "interpretation";
+        saveState();
+        render();
+        return;
+      }
+
+      if (state.screen === "interpretation") {
+        state.screen = "intro";
+        saveState();
+        render();
+      }
     }
 
     startButton.addEventListener("click", () => {
@@ -1142,6 +1236,10 @@
 
     clearSavedButton.addEventListener("click", () => {
       resetState("intro");
+    });
+
+    interpretationButton.addEventListener("click", () => {
+      navigateToScreen("interpretation");
     });
 
     prevButton.addEventListener("click", () => {
@@ -1182,7 +1280,22 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
+    interpretationBackButton.addEventListener("click", () => {
+      navigateToScreen("intro");
+    });
+
+    interpretationStartButton.addEventListener("click", () => {
+      navigateToScreen("question");
+    });
+
+    window.addEventListener("hashchange", syncScreenWithHash);
+
     loadState();
+    if (window.location.hash === "#interpretation") {
+      state.screen = "interpretation";
+    } else if (state.screen === "interpretation") {
+      state.screen = "intro";
+    }
     render();
   </script>
 </body>
