@@ -1,0 +1,1010 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>선호 표상 체계 검사</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8fb;
+      --surface: #ffffff;
+      --surface-strong: #f0f3f7;
+      --text: #17202a;
+      --muted: #667085;
+      --line: #d8dee8;
+      --primary: #0f766e;
+      --primary-strong: #0b5d58;
+      --primary-soft: #d9f3ef;
+      --danger: #b42318;
+      --shadow: 0 14px 36px rgba(22, 32, 42, 0.09);
+      --visual: #2563eb;
+      --auditory: #b45309;
+      --kinesthetic: #047857;
+      --digital: #7c3aed;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+    }
+
+    .app {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+      background: rgba(247, 248, 251, 0.94);
+      border-bottom: 1px solid rgba(216, 222, 232, 0.82);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .step-count {
+      min-width: 64px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #e5eaf0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #0f766e, #2563eb);
+      border-radius: inherit;
+      transition: width 220ms ease;
+    }
+
+    main {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 20px 16px calc(28px + env(safe-area-inset-bottom));
+      flex: 1;
+    }
+
+    .intro,
+    .question-panel,
+    .result-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .intro {
+      padding: 22px 18px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-strong);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .intro h2,
+    .result-panel h2 {
+      margin: 14px 0 10px;
+      font-size: 26px;
+      line-height: 1.24;
+      letter-spacing: 0;
+    }
+
+    .intro p,
+    .result-panel p {
+      margin: 0;
+      color: #344054;
+    }
+
+    .rule-list {
+      display: grid;
+      gap: 8px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .rule-list li {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: var(--surface-strong);
+      border-radius: 8px;
+      color: #344054;
+    }
+
+    .rule-number {
+      display: inline-grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      color: #ffffff;
+      background: var(--primary);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .question-panel {
+      padding: 18px;
+    }
+
+    .question-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .question-meta strong {
+      color: var(--primary-strong);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .question-title {
+      margin: 0 0 16px;
+      font-size: 21px;
+      line-height: 1.38;
+      letter-spacing: 0;
+    }
+
+    .tap-hint {
+      margin: 0 0 14px;
+      color: #475467;
+      font-size: 15px;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      width: 100%;
+      min-height: 64px;
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      text-align: left;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 130ms ease, border-color 130ms ease, background 130ms ease, box-shadow 130ms ease;
+    }
+
+    .option:active {
+      transform: scale(0.985);
+    }
+
+    .option:focus-visible,
+    .nav-button:focus-visible,
+    .text-button:focus-visible {
+      outline: 3px solid rgba(15, 118, 110, 0.28);
+      outline-offset: 2px;
+    }
+
+    .option.is-ranked {
+      border-color: var(--primary);
+      background: #f1fbf9;
+      box-shadow: 0 8px 24px rgba(15, 118, 110, 0.12);
+    }
+
+    .rank {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #64748b;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .option.is-ranked .rank {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .option-text {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      font-weight: 650;
+      color: #26313d;
+    }
+
+    .status-line {
+      min-height: 24px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .nav-button,
+    .text-button {
+      min-height: 48px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: #26313d;
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 130ms ease, background 130ms ease, border-color 130ms ease, opacity 130ms ease;
+    }
+
+    .nav-button:active,
+    .text-button:active {
+      transform: scale(0.985);
+    }
+
+    .nav-button.primary {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .nav-button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .text-button {
+      width: 100%;
+      background: var(--surface-strong);
+    }
+
+    .result-panel {
+      padding: 20px 18px;
+    }
+
+    .result-hero {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .winner {
+      padding: 14px;
+      border-radius: 8px;
+      background: var(--surface-strong);
+      border: 1px solid #e3e8ef;
+    }
+
+    .winner-label {
+      margin: 0 0 4px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .winner-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 24px;
+      font-weight: 850;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .winner-copy {
+      margin-top: 8px;
+      color: #344054;
+    }
+
+    .result-chart {
+      width: 100%;
+      max-width: 280px;
+      margin: 0 auto;
+      aspect-ratio: 1;
+    }
+
+    .score-list {
+      display: grid;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .score-item {
+      display: grid;
+      gap: 7px;
+    }
+
+    .score-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      font-weight: 800;
+    }
+
+    .score-name {
+      overflow-wrap: anywhere;
+    }
+
+    .score-value {
+      color: #344054;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      background: #e7ecf2;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      min-width: 4px;
+      border-radius: inherit;
+      transition: width 260ms ease;
+    }
+
+    .result-note {
+      padding: 13px;
+      border-radius: 8px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #533a05;
+      font-size: 14px;
+    }
+
+    .footer {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (min-width: 720px) {
+      .topbar {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      main {
+        padding: 28px 24px 42px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .intro,
+      .question-panel,
+      .result-panel {
+        padding: 28px;
+      }
+
+      .intro h2,
+      .result-panel h2 {
+        font-size: 32px;
+      }
+
+      .result-hero {
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="title-row">
+          <h1>선호 표상 체계 검사</h1>
+          <div class="step-count" id="stepCount">시작</div>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="intro" id="introScreen">
+        <span class="eyebrow">Favored Representational Systems</span>
+        <h2>문항마다 가장 가까운 항목부터 탭하세요.</h2>
+        <p>각 문항에서 자기에게 가장 크게 해당하는 항목을 먼저 탭하고, 이어서 가까운 순서대로 선택합니다.</p>
+        <ul class="rule-list" aria-label="점수 기준">
+          <li><span class="rule-number">4</span><span>가장 크게 해당하는 경우</span></li>
+          <li><span class="rule-number">1</span><span>가장 적게 해당하거나 관계없는 경우</span></li>
+        </ul>
+        <div class="actions">
+          <button class="nav-button" type="button" id="clearSavedButton">초기화</button>
+          <button class="nav-button primary" type="button" id="startButton">시작하기</button>
+        </div>
+      </section>
+
+      <section class="question-panel hidden" id="questionScreen" aria-live="polite">
+        <div class="question-meta">
+          <span id="questionLabel">문항 1</span>
+          <strong id="tapState">0/4 선택</strong>
+        </div>
+        <h2 class="question-title" id="questionTitle"></h2>
+        <p class="tap-hint">가장 가까운 항목부터 탭하면 4점, 3점, 2점, 1점 순서로 기록됩니다.</p>
+        <div class="options" id="options"></div>
+        <p class="status-line" id="statusLine"></p>
+        <div class="actions">
+          <button class="nav-button" type="button" id="prevButton">이전</button>
+          <button class="nav-button primary" type="button" id="nextButton" disabled>다음</button>
+        </div>
+      </section>
+
+      <section class="result-panel hidden" id="resultScreen">
+        <span class="eyebrow">검사 결과</span>
+        <h2>나의 선호 표상 체계</h2>
+        <div class="result-hero">
+          <div class="winner" id="winner"></div>
+          <svg class="result-chart" id="radarChart" viewBox="0 0 220 220" role="img" aria-labelledby="chartTitle chartDesc">
+            <title id="chartTitle">표상 체계 점수 차트</title>
+            <desc id="chartDesc">시각, 청각, 감각, 분석 점수를 비교한 레이더 차트</desc>
+          </svg>
+        </div>
+        <div class="score-list" id="scoreList"></div>
+        <p class="result-note">이 검사는 자기 이해를 돕기 위한 참고용 도구입니다. 성격, 능력, 적성에 대한 진단으로 해석하지 마세요.</p>
+        <div class="actions">
+          <button class="nav-button" type="button" id="backToQuestionsButton">답변 수정</button>
+          <button class="nav-button primary" type="button" id="restartButton">다시 하기</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      원문: 미국 NLP 협회 ABNLP 공인 Trainer가 설계한 선호 표상 체계 검사 자료 기반
+    </footer>
+  </div>
+
+  <script>
+    const SYSTEMS = {
+      V: {
+        name: "시각형",
+        shortName: "시각",
+        color: "#2563eb",
+        description: "전체 모습, 이미지, 색상, 배치, 눈으로 확인한 정보를 중심으로 판단하는 경향이 강합니다."
+      },
+      A: {
+        name: "청각형",
+        shortName: "청각",
+        color: "#b45309",
+        description: "목소리, 말의 톤, 소리, 대화에서 얻는 정보를 중심으로 반응하는 경향이 강합니다."
+      },
+      K: {
+        name: "감각형",
+        shortName: "감각",
+        color: "#047857",
+        description: "몸의 편안함, 촉감, 직관적인 느낌, 정서적 반응을 중심으로 받아들이는 경향이 강합니다."
+      },
+      D: {
+        name: "분석형",
+        shortName: "분석",
+        color: "#7c3aed",
+        description: "논리, 의미, 근거, 체계적 정리를 중심으로 이해하고 판단하는 경향이 강합니다."
+      }
+    };
+
+    const SCORE_SEQUENCE = [4, 3, 2, 1];
+
+    const QUESTIONS = [
+      {
+        title: "내가 중요한 결정을 할 때 나에게 가장 영향을 미치는 것은 다음과 같은 것이다.",
+        options: [
+          { text: "직관적인 느낌", system: "K" },
+          { text: "다른 사람들이 하는 말", system: "A" },
+          { text: "전체적인 일의 모습과 조화", system: "V" },
+          { text: "면밀한 검토와 연구", system: "D" }
+        ]
+      },
+      {
+        title: "다른 사람과 논쟁을 벌일 때 내가 가장 민감하게 반응하는 부분은 다음과 같다.",
+        options: [
+          { text: "상대방의 목소리 톤", system: "A" },
+          { text: "상대방이 논쟁하는 모습", system: "V" },
+          { text: "상대방의 논쟁 내용", system: "D" },
+          { text: "상대방의 진실된 감정", system: "K" }
+        ]
+      },
+      {
+        title: "나는 평소와 다른 심리 상태가 될 때 다음과 같은 것이 바뀌는 경향이 있다.",
+        options: [
+          { text: "옷차림새나 화장", system: "V" },
+          { text: "감정의 표현", system: "K" },
+          { text: "언어나 용어", system: "D" },
+          { text: "목소리 상태", system: "A" }
+        ]
+      },
+      {
+        title: "나는 다음과 같은 것을 하기가 가장 쉽다.",
+        options: [
+          { text: "음질 좋은 오디오를 켜놓고 음악을 듣기", system: "A" },
+          { text: "관심 있는 주제와 관련하여 논리적으로 생각하기", system: "D" },
+          { text: "가장 안락하게 느껴지는 가구를 고르기", system: "K" },
+          { text: "색상이 잘 어울리는 디자인을 고르기", system: "V" }
+        ]
+      },
+      {
+        title: "나를 가장 잘 나타내는 것은 다음과 같다.",
+        options: [
+          { text: "나는 주변의 소음에 민감하다.", system: "A" },
+          { text: "나는 어떤 사실이나 자료를 분석할 때 논리성을 따진다.", system: "D" },
+          { text: "나는 옷의 촉감에 매우 민감한 편이다.", system: "K" },
+          { text: "나는 실내의 가구배치나 색상에 민감한 편이다.", system: "V" }
+        ]
+      },
+      {
+        title: "사람들이 나를 가장 잘 알려면 다음과 같이 하는 것이 좋다.",
+        options: [
+          { text: "내가 느끼는 것을 경험하기", system: "K" },
+          { text: "나의 관점과 함께 하면서 보기", system: "V" },
+          { text: "내가 무슨 말을 하며 또 표현을 어떻게 하는지 주의 깊게 들어보기", system: "A" },
+          { text: "내가 하고자 하거나 말하는 것의 의미에 관심 갖기", system: "D" }
+        ]
+      },
+      {
+        title: "나는 다음과 같이 하는 것을 좋아한다.",
+        options: [
+          { text: "다른 사람들이 말하는 것을 듣기", system: "A" },
+          { text: "계획을 세울 때 전체적인 모습을 먼저 그려보기", system: "V" },
+          { text: "정보나 자료가 있을 때 논리적 체계를 세우고 정리하기", system: "D" },
+          { text: "사람을 처음 만날 때 그에 대한 느낌을 중시하기", system: "K" }
+        ]
+      },
+      {
+        title: "나로 말할 것 같으면...",
+        options: [
+          { text: "나의 눈으로 보고 확인하기 전에는 잘 믿지 않는 경향이 있다.", system: "V" },
+          { text: "상대방이 애절한 목소리로 부탁을 해오면 거절하지 못한다.", system: "A" },
+          { text: "나의 느낌으로 옳다고 여겨지면 이유를 따지지 않고 믿고 받아들인다.", system: "K" },
+          { text: "이치에 맞고 합리적이면 나는 받아들인다.", system: "D" }
+        ]
+      },
+      {
+        title: "나는 스트레스를 받으면...",
+        options: [
+          { text: "음악을 듣는다.", system: "A" },
+          { text: "책을 읽고 사색을 한다.", system: "D" },
+          { text: "편안하게 누워서 휴식을 취한다.", system: "K" },
+          { text: "좋은 경치를 배경으로 하는 영화나 그림을 본다.", system: "V" }
+        ]
+      },
+      {
+        title: "나는 처음 본 사람이라도 다음과 같은 식으로 그를 기억해낼 수 있다.",
+        options: [
+          { text: "얼굴 모습이나 옷차림새", system: "V" },
+          { text: "목소리", system: "A" },
+          { text: "그에 대한 느낌", system: "K" },
+          { text: "그의 직업이나 하는 일이 무엇일까 생각해보고", system: "D" }
+        ]
+      }
+    ];
+
+    const STORAGE_KEY = "rep-system-test-state-v2";
+    const introScreen = document.querySelector("#introScreen");
+    const questionScreen = document.querySelector("#questionScreen");
+    const resultScreen = document.querySelector("#resultScreen");
+    const stepCount = document.querySelector("#stepCount");
+    const progressBar = document.querySelector("#progressBar");
+    const questionLabel = document.querySelector("#questionLabel");
+    const questionTitle = document.querySelector("#questionTitle");
+    const optionsEl = document.querySelector("#options");
+    const tapState = document.querySelector("#tapState");
+    const statusLine = document.querySelector("#statusLine");
+    const startButton = document.querySelector("#startButton");
+    const clearSavedButton = document.querySelector("#clearSavedButton");
+    const prevButton = document.querySelector("#prevButton");
+    const nextButton = document.querySelector("#nextButton");
+    const restartButton = document.querySelector("#restartButton");
+    const backToQuestionsButton = document.querySelector("#backToQuestionsButton");
+    const winnerEl = document.querySelector("#winner");
+    const scoreList = document.querySelector("#scoreList");
+    const radarChart = document.querySelector("#radarChart");
+
+    let state = {
+      screen: "intro",
+      currentQuestion: 0,
+      answers: QUESTIONS.map(() => [])
+    };
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved || !Array.isArray(saved.answers) || saved.answers.length !== QUESTIONS.length) {
+          return;
+        }
+
+        state = {
+          screen: saved.screen || "intro",
+          currentQuestion: Number.isInteger(saved.currentQuestion) ? saved.currentQuestion : 0,
+          answers: saved.answers.map((answer) => Array.isArray(answer) ? answer.filter(Number.isInteger) : [])
+        };
+      } catch {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function resetState(screen = "intro") {
+      state = {
+        screen,
+        currentQuestion: 0,
+        answers: QUESTIONS.map(() => [])
+      };
+      saveState();
+      render();
+    }
+
+    function showScreen(screen) {
+      introScreen.classList.toggle("hidden", screen !== "intro");
+      questionScreen.classList.toggle("hidden", screen !== "question");
+      resultScreen.classList.toggle("hidden", screen !== "result");
+      state.screen = screen;
+      saveState();
+    }
+
+    function getAnsweredCount() {
+      return state.answers.filter((answer) => answer.length === 4).length;
+    }
+
+    function renderProgress() {
+      if (state.screen === "intro") {
+        stepCount.textContent = "시작";
+        progressBar.style.width = "0%";
+        return;
+      }
+
+      if (state.screen === "result") {
+        stepCount.textContent = "완료";
+        progressBar.style.width = "100%";
+        return;
+      }
+
+      const answeredBeforeCurrent = state.answers.reduce((count, answer, index) => {
+        return index < state.currentQuestion && answer.length === 4 ? count + 1 : count;
+      }, 0);
+      const currentRatio = state.answers[state.currentQuestion].length / 4;
+      const percent = ((answeredBeforeCurrent + currentRatio) / QUESTIONS.length) * 100;
+      stepCount.textContent = `${state.currentQuestion + 1}/${QUESTIONS.length}`;
+      progressBar.style.width = `${Math.min(100, percent)}%`;
+    }
+
+    function renderQuestion() {
+      const question = QUESTIONS[state.currentQuestion];
+      const answer = state.answers[state.currentQuestion];
+      questionLabel.textContent = `문항 ${state.currentQuestion + 1}`;
+      questionTitle.textContent = question.title;
+      tapState.textContent = `${answer.length}/4 선택`;
+      const nextScore = SCORE_SEQUENCE[answer.length];
+      statusLine.textContent = answer.length < 4
+        ? `다음 점수: ${nextScore}점`
+        : "4개 항목을 모두 선택했습니다.";
+      prevButton.disabled = state.currentQuestion === 0;
+      nextButton.disabled = answer.length !== 4;
+      nextButton.textContent = state.currentQuestion === QUESTIONS.length - 1 ? "결과 보기" : "다음";
+
+      optionsEl.replaceChildren(...question.options.map((option, index) => {
+        const rankIndex = answer.indexOf(index);
+        const score = rankIndex >= 0 ? SCORE_SEQUENCE[rankIndex] : null;
+        const button = document.createElement("button");
+        button.className = `option${score ? " is-ranked" : ""}`;
+        button.type = "button";
+        button.setAttribute("aria-pressed", score ? "true" : "false");
+        button.setAttribute("aria-label", score ? `${score}점, ${option.text}` : `${nextScore}점으로 선택, ${option.text}`);
+        button.addEventListener("click", () => selectOption(index));
+
+        const rankEl = document.createElement("span");
+        rankEl.className = "rank";
+        rankEl.textContent = score || "";
+        rankEl.setAttribute("aria-hidden", "true");
+
+        const textEl = document.createElement("span");
+        textEl.className = "option-text";
+        textEl.textContent = option.text;
+
+        button.append(rankEl, textEl);
+        return button;
+      }));
+    }
+
+    function selectOption(index) {
+      const answer = state.answers[state.currentQuestion];
+      const existingIndex = answer.indexOf(index);
+
+      if (existingIndex >= 0) {
+        state.answers[state.currentQuestion] = answer.slice(0, existingIndex);
+      } else if (answer.length < 4) {
+        answer.push(index);
+      }
+
+      saveState();
+      renderQuestion();
+      renderProgress();
+    }
+
+    function calculateScores() {
+      const scores = { V: 0, A: 0, K: 0, D: 0 };
+      state.answers.forEach((answer, questionIndex) => {
+        answer.forEach((optionIndex, rankIndex) => {
+          const system = QUESTIONS[questionIndex].options[optionIndex].system;
+          scores[system] += SCORE_SEQUENCE[rankIndex];
+        });
+      });
+      return scores;
+    }
+
+    function getSortedScores(scores) {
+      return Object.entries(scores)
+        .map(([key, score]) => ({ key, score, ...SYSTEMS[key] }))
+        .sort((a, b) => b.score - a.score);
+    }
+
+    function renderScores(scores) {
+      const sorted = getSortedScores(scores);
+      const maxScore = Math.max(...sorted.map((item) => item.score));
+      const winners = sorted.filter((item) => item.score === maxScore);
+      const winnerNames = winners.map((item) => item.name).join(" · ");
+      winnerEl.innerHTML = `
+        <p class="winner-label">${winners.length > 1 ? "공동 1순위" : "1순위"}</p>
+        <p class="winner-title">${winnerNames}</p>
+        <div class="winner-copy">${winners.map((item) => item.description).join(" ")}</div>
+      `;
+
+      scoreList.replaceChildren(...sorted.map((item) => {
+        const row = document.createElement("div");
+        row.className = "score-item";
+        const percent = (item.score / 40) * 100;
+        row.innerHTML = `
+          <div class="score-head">
+            <span class="score-name">${item.name}</span>
+            <span class="score-value">${item.score}점 / 40점</span>
+          </div>
+          <div class="bar" aria-hidden="true">
+            <div class="bar-fill" style="width: ${percent}%; background: ${item.color};"></div>
+          </div>
+        `;
+        return row;
+      }));
+
+      renderRadar(scores);
+    }
+
+    function renderRadar(scores) {
+      const center = 110;
+      const maxRadius = 78;
+      const keys = ["V", "A", "K", "D"];
+      const labels = {
+        V: { x: 110, y: 15, anchor: "middle" },
+        A: { x: 205, y: 115, anchor: "end" },
+        K: { x: 110, y: 214, anchor: "middle" },
+        D: { x: 15, y: 115, anchor: "start" }
+      };
+
+      const axisPoints = keys.map((_, index) => polarPoint(center, center, maxRadius, index, keys.length));
+      const scorePoints = keys.map((key, index) => {
+        const normalized = Math.max(0, Math.min(1, scores[key] / 40));
+        return polarPoint(center, center, maxRadius * normalized, index, keys.length);
+      });
+
+      const rings = [0.25, 0.5, 0.75, 1].map((ratio) => {
+        const points = keys.map((_, index) => polarPoint(center, center, maxRadius * ratio, index, keys.length));
+        return `<polygon points="${pointsToString(points)}" fill="none" stroke="#d8dee8" stroke-width="1" />`;
+      }).join("");
+
+      const axes = axisPoints.map((point) => (
+        `<line x1="${center}" y1="${center}" x2="${point.x}" y2="${point.y}" stroke="#d8dee8" stroke-width="1" />`
+      )).join("");
+
+      const labelEls = keys.map((key) => (
+        `<text x="${labels[key].x}" y="${labels[key].y}" text-anchor="${labels[key].anchor}" font-size="13" font-weight="800" fill="#344054">${SYSTEMS[key].shortName}</text>`
+      )).join("");
+
+      radarChart.innerHTML = `
+        <title id="chartTitle">표상 체계 점수 차트</title>
+        <desc id="chartDesc">시각, 청각, 감각, 분석 점수를 비교한 레이더 차트</desc>
+        ${rings}
+        ${axes}
+        <polygon points="${pointsToString(scorePoints)}" fill="rgba(15, 118, 110, 0.20)" stroke="#0f766e" stroke-width="3" stroke-linejoin="round" />
+        ${scorePoints.map((point) => `<circle cx="${point.x}" cy="${point.y}" r="4" fill="#0f766e" />`).join("")}
+        ${labelEls}
+      `;
+    }
+
+    function polarPoint(cx, cy, radius, index, total) {
+      const angle = -Math.PI / 2 + index * (Math.PI * 2 / total);
+      return {
+        x: Number((cx + Math.cos(angle) * radius).toFixed(2)),
+        y: Number((cy + Math.sin(angle) * radius).toFixed(2))
+      };
+    }
+
+    function pointsToString(points) {
+      return points.map((point) => `${point.x},${point.y}`).join(" ");
+    }
+
+    function renderResult() {
+      const incompleteIndex = state.answers.findIndex((answer) => answer.length !== 4);
+      if (incompleteIndex >= 0) {
+        state.currentQuestion = incompleteIndex;
+        showScreen("question");
+        renderQuestion();
+        renderProgress();
+        return;
+      }
+
+      renderScores(calculateScores());
+    }
+
+    function render() {
+      showScreen(state.screen);
+      renderProgress();
+
+      if (state.screen === "question") {
+        state.currentQuestion = Math.max(0, Math.min(QUESTIONS.length - 1, state.currentQuestion));
+        renderQuestion();
+      }
+
+      if (state.screen === "result") {
+        renderResult();
+      }
+    }
+
+    startButton.addEventListener("click", () => {
+      state.screen = "question";
+      state.currentQuestion = Math.min(state.currentQuestion, QUESTIONS.length - 1);
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    clearSavedButton.addEventListener("click", () => {
+      resetState("intro");
+    });
+
+    prevButton.addEventListener("click", () => {
+      if (state.currentQuestion > 0) {
+        state.currentQuestion -= 1;
+        saveState();
+        render();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (state.answers[state.currentQuestion].length !== 4) {
+        return;
+      }
+
+      if (state.currentQuestion === QUESTIONS.length - 1) {
+        state.screen = "result";
+      } else {
+        state.currentQuestion += 1;
+      }
+
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    restartButton.addEventListener("click", () => {
+      resetState("question");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    backToQuestionsButton.addEventListener("click", () => {
+      state.screen = "question";
+      state.currentQuestion = 0;
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    loadState();
+    render();
+  </script>
+</body>
+</html>
