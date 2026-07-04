@@ -251,7 +251,8 @@
 
     .option:focus-visible,
     .nav-button:focus-visible,
-    .text-button:focus-visible {
+    .text-button:focus-visible,
+    .aux-button:focus-visible {
       outline: 3px solid rgba(15, 118, 110, 0.28);
       outline-offset: 2px;
     }
@@ -307,6 +308,19 @@
       grid-template-columns: 1fr;
     }
 
+    .primary-action-row {
+      grid-template-columns: 1fr;
+    }
+
+    .intro-secondary-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
     .nav-button,
     .text-button {
       min-height: 48px;
@@ -340,6 +354,29 @@
     .text-button {
       width: 100%;
       background: var(--surface-strong);
+    }
+
+    .aux-button {
+      min-height: 44px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--primary-strong);
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: background 130ms ease, color 130ms ease, transform 130ms ease;
+    }
+
+    .aux-button.secondary {
+      color: var(--muted);
+    }
+
+    .aux-button:active {
+      transform: scale(0.985);
+      background: rgba(15, 118, 110, 0.08);
     }
 
     .result-panel {
@@ -627,12 +664,15 @@
           <li><span class="rule-number">4</span><span>가장 크게 해당하는 경우</span></li>
           <li><span class="rule-number">1</span><span>가장 적게 해당하거나 관계없는 경우</span></li>
         </ul>
-        <div class="actions intro-actions">
-          <button class="nav-button" type="button" id="clearSavedButton">초기화</button>
-          <button class="nav-button" type="button" id="interpretationButton">표상 체계 해석 보기</button>
+        <div class="actions primary-action-row">
           <button class="nav-button primary" type="button" id="startButton">시작하기</button>
         </div>
       </section>
+
+      <div class="intro-secondary-actions" id="introSecondaryActions">
+        <button class="aux-button" type="button" id="interpretationButton">표상 체계 해석 보기</button>
+        <button class="aux-button secondary" type="button" id="clearSavedButton">초기화</button>
+      </div>
 
       <section class="question-panel hidden" id="questionScreen" aria-live="polite">
         <div class="question-meta">
@@ -853,6 +893,7 @@
 
     const STORAGE_KEY = "rep-system-test-state-v2";
     const introScreen = document.querySelector("#introScreen");
+    const introSecondaryActions = document.querySelector("#introSecondaryActions");
     const questionScreen = document.querySelector("#questionScreen");
     const resultScreen = document.querySelector("#resultScreen");
     const interpretationScreen = document.querySelector("#interpretationScreen");
@@ -917,6 +958,7 @@
 
     function showScreen(screen) {
       introScreen.classList.toggle("hidden", screen !== "intro");
+      introSecondaryActions.classList.toggle("hidden", screen !== "intro");
       questionScreen.classList.toggle("hidden", screen !== "question");
       resultScreen.classList.toggle("hidden", screen !== "result");
       interpretationScreen.classList.toggle("hidden", screen !== "interpretation");
@@ -966,7 +1008,8 @@
       statusLine.textContent = answer.length < 4
         ? `다음 점수: ${nextScore}점`
         : "4개 항목을 모두 선택했습니다.";
-      prevButton.disabled = state.currentQuestion === 0;
+      prevButton.disabled = false;
+      prevButton.textContent = state.currentQuestion === 0 ? "처음으로" : "이전";
       nextButton.disabled = answer.length !== 4;
       nextButton.textContent = state.currentQuestion === QUESTIONS.length - 1 ? "결과 보기" : "다음";
 
@@ -1243,7 +1286,9 @@
     });
 
     prevButton.addEventListener("click", () => {
-      if (state.currentQuestion > 0) {
+      if (state.currentQuestion === 0) {
+        navigateToScreen("intro");
+      } else {
         state.currentQuestion -= 1;
         saveState();
         render();
