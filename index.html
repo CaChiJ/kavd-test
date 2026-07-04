@@ -573,6 +573,57 @@
       margin: 0;
     }
 
+    .keyword-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .keyword-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #f8fafc;
+      background: color-mix(in srgb, var(--system-color, var(--primary)) 12%, white);
+      color: #26313d;
+      border: 1px solid #e2e8f0;
+      border: 1px solid color-mix(in srgb, var(--system-color, var(--primary)) 28%, white);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .insight-section {
+      display: grid;
+      gap: 7px;
+      padding-top: 4px;
+    }
+
+    .insight-section h4 {
+      margin: 0;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .insight-section ul {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .insight-section li {
+      padding-left: 2px;
+    }
+
+    .interpretation-more-button {
+      width: 100%;
+    }
+
     .result-note {
       padding: 13px;
       border-radius: 8px;
@@ -704,6 +755,7 @@
           <h3 id="interpretationTitle">표상 체계 해석</h3>
           <p>점수가 높은 유형의 일반적 특징을 중심으로 참고하세요.</p>
           <div class="interpretation-list" id="interpretationList"></div>
+          <button class="text-button interpretation-more-button" type="button" id="resultInterpretationButton">표상 체계 해석 자세히 보기</button>
         </section>
         <p class="result-note">이 검사는 자기 이해를 돕기 위한 참고용 도구입니다. 성격, 능력, 적성에 대한 진단으로 해석하지 마세요.</p>
         <div class="actions">
@@ -763,35 +815,187 @@
     const INTERPRETATIONS = {
       V: {
         subtitle: "Visual - see (시각기능)",
+        keywords: ["이미지", "전체 그림", "색상과 배치", "문서와 도표"],
         paragraphs: [
           "시각기능의 사람들은 눈을 위쪽으로 뜬 채 머리와 몸을 세우는 경향이 있다. 흉식호흡의 경향이 있으며 깔끔하고 정리정돈을 잘한다.",
           "그림이나 모습을 봄으로써 기억하며 소리에 대해서는 덜 민감하다. 마음이 집중하지 않는 경향이 있기에 언어적 지시 사항을 제대로 기억하지 못하는 어려움을 겪는다.",
           "어떤 일을 하더라도 그것이 어떻게 보이는지에 대해서 관심 갖는다. 외모도 중요하다."
+        ],
+        sections: [
+          {
+            title: "관찰 단서",
+            items: [
+              "상황을 이미지, 장면, 배치로 먼저 파악하는 편입니다.",
+              "정리된 공간, 깔끔한 문서, 보기 좋은 디자인에서 안정감을 느낍니다.",
+              "말로만 길게 설명되면 핵심을 놓칠 수 있고, 도표나 메모가 있으면 이해가 빨라집니다."
+            ]
+          },
+          {
+            title: "말과 표현",
+            items: [
+              "\"그림이 그려진다\", \"보기에 좋다\", \"전체 모습이 보인다\"처럼 시각적 표현을 자주 씁니다.",
+              "결정할 때 실제로 눈으로 확인하거나 결과물이 어떻게 보일지를 중요하게 봅니다."
+            ]
+          },
+          {
+            title: "학습과 소통 팁",
+            items: [
+              "핵심 내용을 순서도, 표, 스케치, 색상 구분으로 정리하면 기억에 잘 남습니다.",
+              "회의나 설명에서는 구두 설명만 하기보다 화면, 문서, 체크리스트를 함께 제공하는 방식이 잘 맞습니다.",
+              "정돈된 환경에서 집중력이 올라가므로 공간과 자료를 먼저 정리하는 것이 도움이 됩니다."
+            ]
+          },
+          {
+            title: "잘 맞는 활동",
+            items: [
+              "미술, 그래픽, 건축, 인테리어, 패션, 브랜딩, 기획 시각화처럼 형태와 배치를 다루는 활동과 잘 맞습니다."
+            ]
+          },
+          {
+            title: "하위 단서",
+            items: [
+              "모양, 크기, 색깔, 위치, 거리, 밝기, 선명도 같은 시각적 요소에 민감할 수 있습니다."
+            ]
+          }
         ]
       },
       A: {
         subtitle: "Auditory - hear (청각기능)",
+        keywords: ["목소리", "톤", "대화", "음악과 리듬"],
         paragraphs: [
           "청각기능의 사람들은 눈을 옆으로 움직이는 경향이 있다. 중간 가슴 쪽에서 호흡을 하는 경향이 있다.",
           "독백을 많이 하는 편이며 혼잣말을 하며 입술을 움직이기도 한다. 소음에 민감하여 방해를 잘 받기도 한다.",
           "한번 들었던 것은 잘 기억하며 음악을 좋아하고 전화로 수다떨기를 즐긴다. 가끔 남의 말을 들을 때 고개를 기울이는 경향이 있다.",
           "상사에게 지시를 받을 때는 문서보다는 말로 듣기를 좋아한다. 특정한 목소리의 톤에 민감하게 반응하며, 목소리의 특성인 고저, 음량, 음색 등이 중요한 역할을 한다."
+        ],
+        sections: [
+          {
+            title: "관찰 단서",
+            items: [
+              "말의 내용만큼 목소리의 높낮이, 속도, 음량, 억양에 민감합니다.",
+              "소음이 많은 환경에서는 쉽게 방해를 받을 수 있고, 좋은 소리나 음악에는 빠르게 몰입합니다.",
+              "들은 내용을 잘 기억하고, 생각을 말로 풀어내며 정리하는 경향이 있습니다."
+            ]
+          },
+          {
+            title: "말과 표현",
+            items: [
+              "\"그렇게 들린다\", \"말이 통한다\", \"그 사람이 이렇게 말했다\"처럼 대화와 소리 중심 표현을 자주 씁니다.",
+              "혼잣말, 속말, 반복해서 말하기로 생각을 정리하는 경우가 있습니다."
+            ]
+          },
+          {
+            title: "학습과 소통 팁",
+            items: [
+              "중요한 설명은 직접 말로 듣거나 녹음, 낭독, 토론 방식으로 다루면 기억에 잘 남습니다.",
+              "문서만 전달하기보다 핵심을 짧게 말로 확인해 주면 오해를 줄일 수 있습니다.",
+              "소음이 적고 목소리가 분명하게 들리는 환경이 집중에 유리합니다."
+            ]
+          },
+          {
+            title: "잘 맞는 활동",
+            items: [
+              "음악, 악기, 작곡, 방송, 발표, 상담, 교육처럼 소리와 대화를 다루는 활동과 잘 맞습니다."
+            ]
+          },
+          {
+            title: "하위 단서",
+            items: [
+              "소리 크기, 높낮이, 부드러움, 빠르기, 리듬, 음색 같은 청각적 요소에 민감할 수 있습니다."
+            ]
+          }
         ]
       },
       K: {
         subtitle: "Kinesthetic - feel (신체감각기능)",
+        keywords: ["느낌", "행동", "촉감", "몸의 감각"],
         paragraphs: [
           "신체감각기능의 사람들은 복식호흡을 하는 경향이 있다. 그래서 호흡을 할 때 배가 들어갔다 나왔다 하는 모습을 볼 수 있다.",
           "말을 천천히 하며 말하는 도중에 멈추기도 한다. 신체적 접촉을 좋아하며 다른 사람들과 가까이에서 얘기하는 경향이 있다.",
           "실제로 행동을 하면서 기억하는 경향이 있다. 감을 잘 잡고, 감정이 민감하며 느낌에 강하다."
+        ],
+        sections: [
+          {
+            title: "관찰 단서",
+            items: [
+              "몸으로 해 보거나 직접 경험했을 때 이해와 기억이 강해집니다.",
+              "편안함, 분위기, 거리감, 접촉감처럼 몸과 정서가 주는 신호를 중요하게 봅니다.",
+              "말의 속도가 비교적 느리거나, 생각과 느낌을 고르는 동안 잠깐 멈추는 모습을 보일 수 있습니다."
+            ]
+          },
+          {
+            title: "말과 표현",
+            items: [
+              "\"느낌이 온다\", \"불편하다\", \"마음에 걸린다\", \"해 보니 알겠다\"처럼 감각과 행동 중심 표현을 자주 씁니다.",
+              "사람의 말보다 실제 행동, 약속을 지키는지, 함께 있을 때의 느낌을 더 크게 받아들일 수 있습니다."
+            ]
+          },
+          {
+            title: "학습과 소통 팁",
+            items: [
+              "실습, 역할극, 시연, 몸으로 따라 하기처럼 직접 해 보는 방식이 잘 맞습니다.",
+              "새 정보를 전달할 때는 머리로 이해시키기보다 실제 예시와 체험으로 연결하면 좋습니다.",
+              "스트레스를 받을 때는 움직임, 휴식, 편안한 공간, 몸을 이완하는 루틴이 도움이 됩니다."
+            ]
+          },
+          {
+            title: "잘 맞는 활동",
+            items: [
+              "스포츠, 댄스, 연기, 실험, 실습, 현장 활동처럼 몸의 움직임과 실제 실행이 있는 활동과 잘 맞습니다."
+            ]
+          },
+          {
+            title: "하위 단서",
+            items: [
+              "촉감, 온도, 압력, 무게감, 부드러움, 몸의 긴장과 이완, 정서적 울림 같은 요소에 민감할 수 있습니다."
+            ]
+          }
         ]
       },
       D: {
         subtitle: "Auditory Digital - words (내부 언어적 기능)",
+        keywords: ["논리", "순서", "개념", "내적 언어"],
         paragraphs: [
           "내부 언어적 기능의 사람은 독백하는 버릇이 있다. 사리와 논리를 따지는 경향이 있다.",
           "다른 표상체계의 특징 일부를 보이기도 한다. 절차, 순서, 계열에 따른 사물의 이치를 중시한다.",
           "단어나 용어를 중심으로 하는 언어에 민감하다. 정확한 언어를 구사하려 한다."
+        ],
+        sections: [
+          {
+            title: "관찰 단서",
+            items: [
+              "상황을 바로 느끼기보다 의미, 근거, 정의, 절차로 정리하려는 경향이 있습니다.",
+              "계획적이고 일관된 방식에 안정감을 느끼며, 실수와 모순을 줄이는 데 강점이 있습니다.",
+              "감정보다 생각을 먼저 다루기 때문에 겉으로는 차분하거나 정서 표현이 적어 보일 수 있습니다."
+            ]
+          },
+          {
+            title: "말과 표현",
+            items: [
+              "\"이치에 맞다\", \"근거가 필요하다\", \"정리해 보자\", \"정확히 말하면\"처럼 논리와 언어 중심 표현을 자주 씁니다.",
+              "머릿속 대화나 자기 점검을 통해 결론을 내리는 경우가 많습니다."
+            ]
+          },
+          {
+            title: "학습과 소통 팁",
+            items: [
+              "개념 정의, 단계별 절차, 기준표, 비교표로 설명하면 이해와 수용이 쉬워집니다.",
+              "감각적 설득보다 이유, 조건, 예외, 판단 기준을 함께 제시하는 방식이 잘 맞습니다.",
+              "결정이 늦어질 때는 선택 기준과 마감 시간을 정하면 분석이 길어지는 것을 줄일 수 있습니다."
+            ]
+          },
+          {
+            title: "잘 맞는 활동",
+            items: [
+              "철학, 언어, 법률, 재무, 기획, 분석, 연구처럼 개념과 구조를 다루는 활동과 잘 맞습니다."
+            ]
+          },
+          {
+            title: "하위 단서",
+            items: [
+              "단어, 용어, 순서, 규칙, 범주, 원인과 결과, 일관성 같은 언어적·논리적 요소에 민감할 수 있습니다."
+            ]
+          }
         ]
       }
     };
@@ -911,6 +1115,7 @@
     const nextButton = document.querySelector("#nextButton");
     const restartButton = document.querySelector("#restartButton");
     const backToQuestionsButton = document.querySelector("#backToQuestionsButton");
+    const resultInterpretationButton = document.querySelector("#resultInterpretationButton");
     const interpretationBackButton = document.querySelector("#interpretationBackButton");
     const interpretationStartButton = document.querySelector("#interpretationStartButton");
     const winnerEl = document.querySelector("#winner");
@@ -1099,6 +1304,7 @@
       renderInterpretations(sorted, {
         maxScore,
         showScores: true,
+        detailed: false,
         target: interpretationList
       });
       renderRadar(scores);
@@ -1108,6 +1314,7 @@
       const items = ["V", "A", "K", "D"].map((key) => ({ key, ...SYSTEMS[key] }));
       renderInterpretations(items, {
         showScores: false,
+        detailed: true,
         target: interpretationPageList
       });
     }
@@ -1116,12 +1323,13 @@
       const target = options.target || interpretationList;
       const maxScore = options.maxScore;
       const showScores = options.showScores !== false;
+      const detailed = options.detailed === true;
 
-      target.replaceChildren(...items.map((item) => {
+      target.replaceChildren(...items.map((item, index) => {
         const interpretation = INTERPRETATIONS[item.key];
         const details = document.createElement("details");
         details.className = "interpretation-item";
-        details.open = showScores && item.score === maxScore;
+        details.open = detailed ? index === 0 : showScores && item.score === maxScore;
         details.style.setProperty("--system-color", item.color);
 
         const summary = document.createElement("summary");
@@ -1151,6 +1359,36 @@
           paragraphEl.textContent = paragraph;
           copy.append(paragraphEl);
         });
+
+        if (detailed) {
+          const keywordRow = document.createElement("div");
+          keywordRow.className = "keyword-row";
+          interpretation.keywords.forEach((keyword) => {
+            const chip = document.createElement("span");
+            chip.className = "keyword-chip";
+            chip.textContent = keyword;
+            keywordRow.append(chip);
+          });
+          copy.prepend(keywordRow);
+
+          interpretation.sections.forEach((section) => {
+            const sectionEl = document.createElement("section");
+            sectionEl.className = "insight-section";
+
+            const heading = document.createElement("h4");
+            heading.textContent = section.title;
+
+            const list = document.createElement("ul");
+            section.items.forEach((itemText) => {
+              const listItem = document.createElement("li");
+              listItem.textContent = itemText;
+              list.append(listItem);
+            });
+
+            sectionEl.append(heading, list);
+            copy.append(sectionEl);
+          });
+        }
 
         details.append(summary, copy);
         return details;
@@ -1323,6 +1561,10 @@
       saveState();
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    resultInterpretationButton.addEventListener("click", () => {
+      navigateToScreen("interpretation");
     });
 
     interpretationBackButton.addEventListener("click", () => {
