@@ -424,6 +424,101 @@
       transition: width 260ms ease;
     }
 
+    .interpretation-section {
+      display: grid;
+      gap: 12px;
+      margin: 22px 0 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .interpretation-section h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.32;
+      letter-spacing: 0;
+    }
+
+    .interpretation-section > p {
+      margin: 0;
+      color: #475467;
+      font-size: 15px;
+    }
+
+    .interpretation-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .interpretation-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    .interpretation-item[open] {
+      border-color: var(--system-color, var(--primary));
+      box-shadow: 0 8px 24px rgba(22, 32, 42, 0.08);
+    }
+
+    .interpretation-item summary {
+      min-height: 56px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      touch-action: manipulation;
+      font-weight: 850;
+      color: #26313d;
+    }
+
+    .interpretation-item summary::marker {
+      color: var(--system-color, var(--primary));
+    }
+
+    .interpretation-item summary:focus-visible {
+      outline: 3px solid rgba(15, 118, 110, 0.28);
+      outline-offset: -3px;
+    }
+
+    .system-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--system-color, var(--primary));
+    }
+
+    .interpretation-title {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .interpretation-name {
+      overflow-wrap: anywhere;
+    }
+
+    .interpretation-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .interpretation-copy {
+      display: grid;
+      gap: 10px;
+      padding: 0 14px 14px 36px;
+      color: #344054;
+    }
+
+    .interpretation-copy p {
+      margin: 0;
+    }
+
     .result-note {
       padding: 13px;
       border-radius: 8px;
@@ -545,6 +640,11 @@
           </svg>
         </div>
         <div class="score-list" id="scoreList"></div>
+        <section class="interpretation-section" aria-labelledby="interpretationTitle">
+          <h3 id="interpretationTitle">표상 체계 해석</h3>
+          <p>점수가 높은 유형의 일반적 특징을 중심으로 참고하세요.</p>
+          <div class="interpretation-list" id="interpretationList"></div>
+        </section>
         <p class="result-note">이 검사는 자기 이해를 돕기 위한 참고용 도구입니다. 성격, 능력, 적성에 대한 진단으로 해석하지 마세요.</p>
         <div class="actions">
           <button class="nav-button" type="button" id="backToQuestionsButton">답변 수정</button>
@@ -583,6 +683,42 @@
         shortName: "분석",
         color: "#7c3aed",
         description: "논리, 의미, 근거, 체계적 정리를 중심으로 이해하고 판단하는 경향이 강합니다."
+      }
+    };
+
+    const INTERPRETATIONS = {
+      V: {
+        subtitle: "Visual - see (시각기능)",
+        paragraphs: [
+          "시각기능의 사람들은 눈을 위쪽으로 뜬 채 머리와 몸을 세우는 경향이 있다. 흉식호흡의 경향이 있으며 깔끔하고 정리정돈을 잘한다.",
+          "그림이나 모습을 봄으로써 기억하며 소리에 대해서는 덜 민감하다. 마음이 집중하지 않는 경향이 있기에 언어적 지시 사항을 제대로 기억하지 못하는 어려움을 겪는다.",
+          "어떤 일을 하더라도 그것이 어떻게 보이는지에 대해서 관심 갖는다. 외모도 중요하다."
+        ]
+      },
+      A: {
+        subtitle: "Auditory - hear (청각기능)",
+        paragraphs: [
+          "청각기능의 사람들은 눈을 옆으로 움직이는 경향이 있다. 중간 가슴 쪽에서 호흡을 하는 경향이 있다.",
+          "독백을 많이 하는 편이며 혼잣말을 하며 입술을 움직이기도 한다. 소음에 민감하여 방해를 잘 받기도 한다.",
+          "한번 들었던 것은 잘 기억하며 음악을 좋아하고 전화로 수다떨기를 즐긴다. 가끔 남의 말을 들을 때 고개를 기울이는 경향이 있다.",
+          "상사에게 지시를 받을 때는 문서보다는 말로 듣기를 좋아한다. 특정한 목소리의 톤에 민감하게 반응하며, 목소리의 특성인 고저, 음량, 음색 등이 중요한 역할을 한다."
+        ]
+      },
+      K: {
+        subtitle: "Kinesthetic - feel (신체감각기능)",
+        paragraphs: [
+          "신체감각기능의 사람들은 복식호흡을 하는 경향이 있다. 그래서 호흡을 할 때 배가 들어갔다 나왔다 하는 모습을 볼 수 있다.",
+          "말을 천천히 하며 말하는 도중에 멈추기도 한다. 신체적 접촉을 좋아하며 다른 사람들과 가까이에서 얘기하는 경향이 있다.",
+          "실제로 행동을 하면서 기억하는 경향이 있다. 감을 잘 잡고, 감정이 민감하며 느낌에 강하다."
+        ]
+      },
+      D: {
+        subtitle: "Auditory Digital - words (내부 언어적 기능)",
+        paragraphs: [
+          "내부 언어적 기능의 사람은 독백하는 버릇이 있다. 사리와 논리를 따지는 경향이 있다.",
+          "다른 표상체계의 특징 일부를 보이기도 한다. 절차, 순서, 계열에 따른 사물의 이치를 중시한다.",
+          "단어나 용어를 중심으로 하는 언어에 민감하다. 정확한 언어를 구사하려 한다."
+        ]
       }
     };
 
@@ -700,6 +836,7 @@
     const backToQuestionsButton = document.querySelector("#backToQuestionsButton");
     const winnerEl = document.querySelector("#winner");
     const scoreList = document.querySelector("#scoreList");
+    const interpretationList = document.querySelector("#interpretationList");
     const radarChart = document.querySelector("#radarChart");
 
     let state = {
@@ -870,7 +1007,49 @@
         return row;
       }));
 
+      renderInterpretations(sorted, maxScore);
       renderRadar(scores);
+    }
+
+    function renderInterpretations(sortedScores, maxScore) {
+      interpretationList.replaceChildren(...sortedScores.map((item) => {
+        const interpretation = INTERPRETATIONS[item.key];
+        const details = document.createElement("details");
+        details.className = "interpretation-item";
+        details.open = item.score === maxScore;
+        details.style.setProperty("--system-color", item.color);
+
+        const summary = document.createElement("summary");
+
+        const dot = document.createElement("span");
+        dot.className = "system-dot";
+        dot.setAttribute("aria-hidden", "true");
+
+        const title = document.createElement("span");
+        title.className = "interpretation-title";
+
+        const name = document.createElement("span");
+        name.className = "interpretation-name";
+        name.textContent = `${item.name} · ${item.score}점`;
+
+        const subtitle = document.createElement("span");
+        subtitle.className = "interpretation-subtitle";
+        subtitle.textContent = interpretation.subtitle;
+
+        title.append(name, subtitle);
+        summary.append(dot, title);
+
+        const copy = document.createElement("div");
+        copy.className = "interpretation-copy";
+        interpretation.paragraphs.forEach((paragraph) => {
+          const paragraphEl = document.createElement("p");
+          paragraphEl.textContent = paragraph;
+          copy.append(paragraphEl);
+        });
+
+        details.append(summary, copy);
+        return details;
+      }));
     }
 
     function renderRadar(scores) {
