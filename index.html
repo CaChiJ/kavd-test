@@ -850,7 +850,7 @@
           <div class="winner" id="winner"></div>
           <svg class="result-chart" id="radarChart" viewBox="0 0 220 220" role="img" aria-labelledby="chartTitle chartDesc">
             <title id="chartTitle">표상 체계 점수 차트</title>
-            <desc id="chartDesc">시각, 청각, 감각, 분석 점수를 비교한 레이더 차트</desc>
+            <desc id="chartDesc">Visual, Auditory, Kinesthetic, Auditory Digital 점수를 비교한 레이더 차트</desc>
           </svg>
         </div>
         <div class="score-list" id="scoreList"></div>
@@ -895,28 +895,28 @@
   <script>
     const SYSTEMS = {
       V: {
-        name: "시각형",
-        shortName: "시각",
+        name: "Visual",
+        shortName: "V",
         color: "#2563eb",
-        description: "전체 모습, 이미지, 색상, 배치, 눈으로 확인한 정보를 중심으로 판단하는 경향이 강합니다."
+        description: "시각형: 전체 모습, 이미지, 색상, 배치, 눈으로 확인한 정보를 중심으로 판단하는 경향이 강합니다."
       },
       A: {
-        name: "청각형",
-        shortName: "청각",
+        name: "Auditory",
+        shortName: "A",
         color: "#b45309",
-        description: "목소리, 말의 톤, 소리, 대화에서 얻는 정보를 중심으로 반응하는 경향이 강합니다."
+        description: "청각형: 목소리, 말의 톤, 소리, 대화에서 얻는 정보를 중심으로 반응하는 경향이 강합니다."
       },
       K: {
-        name: "감각형",
-        shortName: "감각",
+        name: "Kinesthetic",
+        shortName: "K",
         color: "#047857",
-        description: "몸의 편안함, 촉감, 직관적인 느낌, 정서적 반응을 중심으로 받아들이는 경향이 강합니다."
+        description: "감각형: 몸의 편안함, 촉감, 직관적인 느낌, 정서적 반응을 중심으로 받아들이는 경향이 강합니다."
       },
       D: {
-        name: "분석형",
-        shortName: "분석",
+        name: "Auditory Digital",
+        shortName: "AD",
         color: "#7c3aed",
-        description: "논리, 의미, 근거, 체계적 정리를 중심으로 이해하고 판단하는 경향이 강합니다."
+        description: "분석형: 논리, 의미, 근거, 체계적 정리를 중심으로 이해하고 판단하는 경향이 강합니다."
       }
     };
 
@@ -1587,7 +1587,7 @@
 
       radarChart.innerHTML = `
         <title id="chartTitle">표상 체계 점수 차트</title>
-        <desc id="chartDesc">시각, 청각, 감각, 분석 점수를 비교한 레이더 차트</desc>
+        <desc id="chartDesc">Visual, Auditory, Kinesthetic, Auditory Digital 점수를 비교한 레이더 차트</desc>
         ${rings}
         ${axes}
         <polygon points="${pointsToString(scorePoints)}" fill="rgba(15, 118, 110, 0.20)" stroke="#0f766e" stroke-width="3" stroke-linejoin="round" />
