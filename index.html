@@ -920,6 +920,159 @@
       }
     }
 
+    @media (max-width: 430px) {
+      body[data-screen="result"] main,
+      body[data-screen="interpretation"] main {
+        padding: 12px 10px calc(20px + env(safe-area-inset-bottom));
+      }
+
+      body[data-screen="result"] .result-panel,
+      body[data-screen="interpretation"] .interpretation-panel {
+        padding: 16px 12px;
+      }
+
+      body[data-screen="result"] .result-panel h2,
+      body[data-screen="interpretation"] .interpretation-panel h2 {
+        margin: 10px 0 8px;
+        font-size: 24px;
+      }
+
+      body[data-screen="result"] .result-hero,
+      body[data-screen="interpretation"] .interpretation-lead {
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      body[data-screen="result"] .winner,
+      body[data-screen="result"] .answer-review-item {
+        padding: 10px;
+      }
+
+      body[data-screen="result"] .winner-title {
+        font-size: 22px;
+      }
+
+      body[data-screen="result"] .winner-copy {
+        margin-top: 6px;
+      }
+
+      body[data-screen="result"] .result-chart {
+        max-width: 240px;
+      }
+
+      body[data-screen="result"] .score-list {
+        gap: 10px;
+        margin: 14px 0;
+      }
+
+      body[data-screen="result"] .interpretation-section,
+      body[data-screen="result"] .answer-review-section {
+        gap: 10px;
+        margin: 16px 0 14px;
+        padding-top: 14px;
+      }
+
+      body[data-screen="result"] .result-note {
+        padding: 10px;
+      }
+
+      body[data-screen="result"] .answer-review-list {
+        gap: 10px;
+      }
+
+      body[data-screen="result"] .answer-choice {
+        grid-template-columns: 32px minmax(0, 1fr) auto;
+        gap: 6px;
+        padding: 6px;
+      }
+
+      body[data-screen="result"] .answer-score {
+        width: 28px;
+        height: 28px;
+        font-size: 13px;
+      }
+
+      body[data-screen="result"] .answer-system {
+        min-height: 26px;
+        padding: 0 7px;
+      }
+
+      body[data-screen="result"] .actions,
+      body[data-screen="interpretation"] .actions {
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      body[data-screen="result"] .result-secondary-actions {
+        margin-top: 8px;
+      }
+
+      body[data-screen="result"] .interpretation-list,
+      body[data-screen="interpretation"] .interpretation-list {
+        gap: 8px;
+      }
+
+      body[data-screen="result"] .interpretation-item summary,
+      body[data-screen="interpretation"] .interpretation-item summary {
+        min-height: 52px;
+        gap: 8px;
+        padding: 10px;
+      }
+
+      body[data-screen="result"] .system-dot,
+      body[data-screen="interpretation"] .system-dot {
+        width: 10px;
+        height: 10px;
+      }
+
+      body[data-screen="result"] .interpretation-copy,
+      body[data-screen="interpretation"] .interpretation-copy {
+        gap: 9px;
+        padding: 0 10px 12px;
+      }
+
+      body[data-screen="interpretation"] .keyword-row {
+        gap: 5px;
+      }
+
+      body[data-screen="interpretation"] .keyword-chip {
+        min-height: 26px;
+        padding: 0 8px;
+      }
+
+      body[data-screen="interpretation"] .insight-section ul {
+        padding-left: 16px;
+      }
+
+      body[data-screen="interpretation"] .interpretation-reference-image {
+        margin-top: 14px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      body[data-screen="result"] main,
+      body[data-screen="interpretation"] main {
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      body[data-screen="result"] .result-panel,
+      body[data-screen="interpretation"] .interpretation-panel {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      body[data-screen="result"] .answer-choice {
+        grid-template-columns: 32px minmax(0, 1fr);
+        align-items: start;
+      }
+
+      body[data-screen="result"] .answer-system {
+        grid-column: 2;
+        justify-self: start;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -1661,6 +1814,7 @@
     }
 
     function showScreen(screen) {
+      document.body.dataset.screen = screen;
       introScreen.classList.toggle("hidden", screen !== "intro");
       introSecondaryActions.classList.toggle("hidden", screen !== "intro");
       questionScreen.classList.toggle("hidden", screen !== "question");
